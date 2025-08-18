@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # ---------------------- 기본 설정 ----------------------
 st.set_page_config(page_title="건강 관리 대시보드", page_icon="🏃", layout="wide")
@@ -70,11 +69,7 @@ with col1:
 
 with col2:
     st.subheader("📊 주간 운동 기록")
-    fig, ax = plt.subplots(figsize=(5,3))
-    ax.bar(exercise_df["요일"], exercise_df["운동 시간(분)"], color="skyblue")
-    ax.set_ylabel("운동 시간(분)")
-    ax.set_title("주간 운동량")
-    st.pyplot(fig)
+    st.bar_chart(exercise_df.set_index("요일"))
 
 # ---------------------- 요약 ----------------------
 st.markdown(f"""
