@@ -14,10 +14,10 @@ st.markdown("""
 # ---------------------- 사용자 입력 ----------------------
 st.sidebar.header("개인 정보 입력")
 name = st.sidebar.text_input("이름을 입력하세요", "홍길동")
-age = st.sidebar.number_input("나이", 10, 100, 20)
+age = st.sidebar.number_input("나이", min_value=10, max_value=100, value=20)
 gender = st.sidebar.selectbox("성별", ["남성", "여성"])
-height = st.sidebar.number_input("키(cm)", 100, 220, 170)
-weight = st.sidebar.number_input("몸무게(kg)", 30, 150, 65)
+height = st.sidebar.number_input("키(cm)", min_value=100, max_value=220, value=170)
+weight = st.sidebar.number_input("몸무게(kg)", min_value=30, max_value=150, value=65)
 activity_level = st.sidebar.selectbox(
     "활동 수준",
     ["거의 운동 안 함", "가벼운 활동", "보통 활동", "적극적인 활동", "운동선수 수준"]
@@ -25,7 +25,7 @@ activity_level = st.sidebar.selectbox(
 
 # ---------------------- BMI 계산 ----------------------
 height_m = height / 100
-bmi = round(weight / (height_m ** 2), 2)
+bmi = round(weight / (height_m ** 2), 2) if height_m > 0 else 0
 
 if bmi < 18.5:
     bmi_status = "저체중"
@@ -50,13 +50,13 @@ activity_multipliers = {
     "운동선수 수준": 1.9,
 }
 
-calorie_needs = round(bmr * activity_multipliers[activity_level])
+calorie_needs = round(bmr * activity_multipliers.get(activity_level, 1.2))
 
 # ---------------------- 운동 기록 ----------------------
 st.sidebar.subheader("📅 운동 기록 입력")
 exercise_data = {}
 for day in ["월", "화", "수", "목", "금", "토", "일"]:
-    exercise_data[day] = st.sidebar.number_input(f"{day}요일 운동 시간(분)", 0, 300, 0)
+    exercise_data[day] = st.sidebar.number_input(f"{day}요일 운동 시간(분)", min_value=0, max_value=300, value=0)
 
 exercise_df = pd.DataFrame(list(exercise_data.items()), columns=["요일", "운동 시간(분)"])
 
@@ -77,12 +77,11 @@ with col2:
     st.pyplot(fig)
 
 # ---------------------- 요약 ----------------------
-st.markdown("""
+st.markdown(f"""
 ### ✅ 종합 요약
-- **BMI 상태**: {}  
-- **권장 칼로리**: {} kcal  
-- **총 운동 시간(주간)**: {} 분  
+- **BMI 상태**: {bmi_status}  
+- **권장 칼로리**: {calorie_needs} kcal  
+- **총 운동 시간(주간)**: {sum(exercise_data.values())} 분  
 
 👉 꾸준한 운동과 올바른 식습관이 건강을 지켜줍니다!
-""".format(bmi_status, calorie_needs, sum(exercise_data.values())))
-
+""")
